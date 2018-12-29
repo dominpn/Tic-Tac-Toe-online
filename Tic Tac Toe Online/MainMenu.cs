@@ -1,11 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
 using System.Net.Sockets;
@@ -27,7 +20,14 @@ namespace Tic_Tac_Toe_Online
                              MessageBoxButtons.YesNo,
                              MessageBoxIcon.Question);
 
-            e.Cancel = (result == DialogResult.No);
+            if (result == DialogResult.No)
+            {
+                e.Cancel = true;
+            }
+            else
+            {
+                Environment.Exit(0);
+            }
         }
 
         public static bool CheckIp(string ip)
@@ -57,18 +57,17 @@ namespace Tic_Tac_Toe_Online
 
         private void CreateNewGameButton_Click(object sender, EventArgs e)
         {
-            this.Hide();
+            Hide();
             Board board = new Board("X", "O", null);
             board.ShowDialog();
         }
 
         private void PrepareClient()
         {
-            client = new TcpClient();
-            IPEndPoint ipEnd = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8000);
-
             try
             {
+                client = new TcpClient();
+                IPEndPoint ipEnd = new IPEndPoint(IPAddress.Parse(ServerIpText.Text), 8000);
                 client.Connect(ipEnd);
             }
             catch (Exception ex)

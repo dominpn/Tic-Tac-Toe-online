@@ -30,6 +30,7 @@
             this.Z1 = new System.Windows.Forms.Button();
             this.IpLabel = new System.Windows.Forms.Label();
             this.receiverWorker = new System.ComponentModel.BackgroundWorker();
+            this.markLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // X1
@@ -134,11 +135,21 @@
             // 
             this.receiverWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.receiverWorker_DoWork);
             // 
+            // markLabel
+            // 
+            this.markLabel.AutoSize = true;
+            this.markLabel.Location = new System.Drawing.Point(181, 13);
+            this.markLabel.Name = "markLabel";
+            this.markLabel.Size = new System.Drawing.Size(68, 13);
+            this.markLabel.TabIndex = 10;
+            this.markLabel.Text = "Your mark is ";
+            // 
             // Board
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(275, 305);
+            this.Controls.Add(this.markLabel);
             this.Controls.Add(this.IpLabel);
             this.Controls.Add(this.Z3);
             this.Controls.Add(this.Z2);
@@ -169,6 +180,7 @@
         private System.Windows.Forms.Button Z1;
         private System.Windows.Forms.Label IpLabel;
         private System.ComponentModel.BackgroundWorker receiverWorker;
+        private System.Windows.Forms.Label markLabel;
     }
 }
 

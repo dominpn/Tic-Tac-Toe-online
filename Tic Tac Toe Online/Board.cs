@@ -11,14 +11,17 @@ namespace Tic_Tac_Toe_Online
     {
         TcpListener listener;
         TcpClient client;
+
         public StreamReader streamReader;
         public StreamWriter streamWriter;
-        public string recieve;
+        public string receive;
+
         string mark, opponent_mark;
         public Board(string mark, string opponent_mark, TcpClient client)
         {
             InitializeComponent();
             this.mark = mark;
+            markLabel.Text += mark;
             this.opponent_mark = opponent_mark;
             GetLocalIPAddress();
 
@@ -32,14 +35,17 @@ namespace Tic_Tac_Toe_Online
             {
                 listener = new TcpListener(IPAddress.Any, 8000);
                 listener.Start();
+                MessageBox.Show("Waiting for opponent... \n " + IpLabel.Text);
                 this.client = listener.AcceptTcpClient();
             }
 
-
-            streamWriter = new StreamWriter(this.client.GetStream());
-            streamReader = new StreamReader(this.client.GetStream());
-            streamWriter.AutoFlush = true;
-            receiverWorker.RunWorkerAsync();
+            if (this.client.Connected)
+            {
+                streamWriter = new StreamWriter(this.client.GetStream());
+                streamReader = new StreamReader(this.client.GetStream());
+                streamWriter.AutoFlush = true;
+                receiverWorker.RunWorkerAsync();
+            }
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
@@ -67,6 +73,7 @@ namespace Tic_Tac_Toe_Online
             if (checkWinner())
             {
                 MessageBox.Show("You win!");
+                Rematch();
             }
         }
 
@@ -128,14 +135,30 @@ namespace Tic_Tac_Toe_Online
             {
                 try
                 {
-                    recieve = "";
-                    recieve = streamReader.ReadLine();
-                    ShowOpponentMovementOnBoard(recieve);
-                    if (checkWinner())
+                    receive = "";
+                    receive = streamReader.ReadLine();
+                    switch (receive)
                     {
-                        MessageBox.Show("You lose!");
+                        case "YES":
+
+                            ResetButtons();
+                            ChangeButtonsEnabled(true);
+                            break;
+
+                        case "NO":
+                            ReturnToMainMenu();
+                            break;
+
+                        default:
+                            ShowOpponentMovementOnBoard(receive);
+                            if (checkWinner())
+                            {
+                                MessageBox.Show("You lose!");
+                                Rematch();
+                            }
+                            ChangeButtonsEnabled(true);
+                            break;
                     }
-                    ChangeButtonsEnabled(true);
                 }
                 catch (Exception ex)
                 {
@@ -156,6 +179,7 @@ namespace Tic_Tac_Toe_Online
                         control.Text = opponent_mark;
                         control.Enabled = false;
                     }));
+                    break;
                 }
             }
         }
@@ -174,11 +198,11 @@ namespace Tic_Tac_Toe_Online
             throw new Exception("Local IP Address Not Found!");
         }
 
-        private void Send(string buttonName)
+        private void Send(string message)
         {
             if (client.Connected)
             {
-                streamWriter.WriteLine(buttonName);
+                streamWriter.WriteLine(message);
                 ChangeButtonsEnabled(false);
             }
             else
@@ -190,9 +214,29 @@ namespace Tic_Tac_Toe_Online
         private void ConnectionLost()
         {
             MessageBox.Show("You lost connection with opponent");
-            Hide();
+            ReturnToMainMenu();
+        }
+
+        private void ReturnToMainMenu()
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new Action(() =>
+                {
+                    Hide();
+                }));
+            }
+            else
+            {
+                Hide();
+            }
+            if (listener != null)
+            {
+                listener.Stop();
+            }
+            client.Close();
             MainMenu mainMenu = new MainMenu();
-            mainMenu.Show();
+            mainMenu.ShowDialog();
         }
 
         private void ChangeButtonsEnabled(bool enabled)
@@ -214,6 +258,40 @@ namespace Tic_Tac_Toe_Online
                     }
                 }
             }
+        }
+
+        private void ResetButtons()
+        {
+            foreach (Control control in Controls)
+            {
+                if (control is Button)
+                {
+                    if (InvokeRequired)
+                    {
+                        Invoke(new Action(() =>
+                        {
+                            control.Text = "";
+                        }));
+                    }
+                    else
+                    {
+                        control.Text = "";
+                    }
+                }
+            }
+        }
+
+        private void Rematch()
+        {
+            var result = MessageBox.Show("Do you want rematch?", "",
+                             MessageBoxButtons.YesNo,
+                             MessageBoxIcon.Question);
+
+            if (result == DialogResult.No)
+            {
+                Send("NO");
+            }
+            Send("YES");
         }
     }
 }
