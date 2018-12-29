@@ -71,17 +71,16 @@
             this.ConnectButton.UseVisualStyleBackColor = true;
             this.ConnectButton.Click += new System.EventHandler(this.ConnectButton_Click);
             // 
-            // Server_IP
+            // MainMenu
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 262);
-            this.ControlBox = false;
             this.Controls.Add(this.ConnectButton);
             this.Controls.Add(this.CreateNewGameButton);
             this.Controls.Add(this.ServerIpText);
             this.Controls.Add(this.ServerIpLabel);
-            this.Name = "Server_IP";
+            this.Name = "MainMenu";
             this.Text = "Tic Tac Toe Online";
             this.ResumeLayout(false);
             this.PerformLayout();

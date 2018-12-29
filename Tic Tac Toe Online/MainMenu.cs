@@ -8,24 +8,26 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
+using System.Net.Sockets;
+using System.Net;
 
 namespace Tic_Tac_Toe_Online
 {
     public partial class MainMenu : Form
     {
-        private string serverIP;
-        private void SetupTCPClient(string serverIP)
-        {
-            this.serverIP = serverIP;
-        }
+        TcpClient client;
         public MainMenu()
         {
             InitializeComponent();
         }
 
-        private void exit_Click(object sender, EventArgs e)
+        protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            Environment.Exit(0);
+            var result = MessageBox.Show("Are you sure to exit from appliaction?", "",
+                             MessageBoxButtons.YesNo,
+                             MessageBoxIcon.Question);
+
+            e.Cancel = (result == DialogResult.No);
         }
 
         public static bool CheckIp(string ip)
@@ -39,25 +41,54 @@ namespace Tic_Tac_Toe_Online
             {
                 if (CheckIp(ServerIpText.Text) == true)
                 {
-                    SetupTCPClient(ServerIpText.Text);
-                    this.Hide();
-                    Board board = new Board("O");
+                    PrepareClient();
+                    Hide();
+                    Board board = new Board("O", "X", client);
                     board.ShowDialog();
                 }
                 else
                     MessageBox.Show("This is not valid IP adress");
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("You cannot connect to opponent");
+                MessageBox.Show("You cannot connect to opponent " + ex);
             }
         }
 
         private void CreateNewGameButton_Click(object sender, EventArgs e)
         {
             this.Hide();
-            Board board = new Board("X");
+            Board board = new Board("X", "O", null);
             board.ShowDialog();
         }
+
+        private void PrepareClient()
+        {
+            client = new TcpClient();
+            IPEndPoint ipEnd = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8000);
+
+            try
+            {
+                client.Connect(ipEnd);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message.ToString());
+            }
+        }
+
+        public string GetLocalIPAddress()
+        {
+            IPAddress[] ipAdressList = Dns.GetHostAddresses(Dns.GetHostName());
+            foreach (IPAddress ip in ipAdressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    return ip.ToString();
+                }
+            }
+            throw new Exception("Local IP Address Not Found!");
+        }
+
     }
 }
