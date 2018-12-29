@@ -48,6 +48,7 @@ namespace Tic_Tac_Toe_Online
             }
         }
 
+        /*
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             var result = MessageBox.Show("Are you sure to exit from appliaction?", "",
@@ -63,6 +64,7 @@ namespace Tic_Tac_Toe_Online
                 Environment.Exit(0);
             }
         }
+        */
 
         private void Button_Click(object sender, EventArgs e)
         {
@@ -72,6 +74,7 @@ namespace Tic_Tac_Toe_Online
             Send(button.Name);
             if (checkWinner())
             {
+                ChangeButtonsEnabled(false);
                 MessageBox.Show("You win!");
                 Rematch();
             }
@@ -153,6 +156,7 @@ namespace Tic_Tac_Toe_Online
                             ShowOpponentMovementOnBoard(receive);
                             if (checkWinner())
                             {
+                                ChangeButtonsEnabled(false);
                                 MessageBox.Show("You lose!");
                                 Rematch();
                             }
