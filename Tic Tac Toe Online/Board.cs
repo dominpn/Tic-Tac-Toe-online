@@ -15,6 +15,7 @@ namespace Tic_Tac_Toe_Online
         public StreamReader streamReader;
         public StreamWriter streamWriter;
         public string receive;
+        bool isClosing;
 
         string mark, opponent_mark;
         public Board(string mark, string opponent_mark, TcpClient client)
@@ -23,6 +24,7 @@ namespace Tic_Tac_Toe_Online
             this.mark = mark;
             markLabel.Text += mark;
             this.opponent_mark = opponent_mark;
+            isClosing = false;
             GetLocalIPAddress();
 
             if (client != null)
@@ -48,23 +50,15 @@ namespace Tic_Tac_Toe_Online
             }
         }
 
-        /*
+        
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            var result = MessageBox.Show("Are you sure to exit from appliaction?", "",
-                             MessageBoxButtons.YesNo,
-                             MessageBoxIcon.Question);
-
-            if (result == DialogResult.No)
+            if (listener != null)
             {
-                e.Cancel = true;
+                listener.Stop();
             }
-            else
-            {
-                Environment.Exit(0);
-            }
+            client.Close();
         }
-        */
 
         private void Button_Click(object sender, EventArgs e)
         {
@@ -164,12 +158,12 @@ namespace Tic_Tac_Toe_Online
                             break;
                     }
                 }
-                catch (Exception ex)
+                catch
                 {
-                    MessageBox.Show(ex.Message.ToString());
                     ConnectionLost();
                 }
             }
+            ConnectionLost();
         }
 
         private void ShowOpponentMovementOnBoard(string field)
@@ -206,8 +200,15 @@ namespace Tic_Tac_Toe_Online
         {
             if (client.Connected)
             {
-                streamWriter.WriteLine(message);
-                ChangeButtonsEnabled(false);
+                try
+                {
+                    streamWriter.WriteLine(message);
+                    ChangeButtonsEnabled(false);
+                }
+                catch
+                {
+                    ConnectionLost();
+                }
             }
             else
             {
@@ -223,6 +224,11 @@ namespace Tic_Tac_Toe_Online
 
         private void ReturnToMainMenu()
         {
+            if (isClosing)
+            {
+                return;
+            }
+            isClosing = true;
             if (InvokeRequired)
             {
                 Invoke(new Action(() =>
@@ -234,11 +240,7 @@ namespace Tic_Tac_Toe_Online
             {
                 Hide();
             }
-            if (listener != null)
-            {
-                listener.Stop();
-            }
-            client.Close();
+            
             MainMenu mainMenu = new MainMenu();
             mainMenu.ShowDialog();
         }
