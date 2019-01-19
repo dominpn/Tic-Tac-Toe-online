@@ -72,7 +72,7 @@ namespace Tic_Tac_Toe_Online
                 MessageBox.Show("You win!");
                 Rematch();
             }
-            else if (AllButtonsDisabled())
+            else if (CheckDraw())
             {
                 MessageBox.Show("Draw!");
                 Rematch();
@@ -131,11 +131,11 @@ namespace Tic_Tac_Toe_Online
             return false;
         }
 
-        private bool AllButtonsDisabled()
+        private bool CheckDraw()
         {
             foreach (Control control in Controls)
             {
-                if (control.Enabled is true)
+                if (control is Button && control.Text == "")
                 {
                     return false;
                 }
@@ -172,7 +172,7 @@ namespace Tic_Tac_Toe_Online
                                 Rematch();
                             }
 
-                            else if (AllButtonsDisabled())
+                            else if (CheckDraw())
                             {
                                 MessageBox.Show("Draw!");
                                 Rematch();
